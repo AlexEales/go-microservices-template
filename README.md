@@ -42,6 +42,7 @@ This project is still WIP and so not all features will be present yet but the on
 - [ ] Kafka Deployment
 - [ ] Hashicorp Vault Deployment
 - [ ] Prometheus, Kibana, OpenTracing and Grafana Observability Stack Deployments
+- [ ] gRPC Gateway Buildrules
 - [ ] Example Services
   - [ ] HTTP
   - [ ] gRPC
