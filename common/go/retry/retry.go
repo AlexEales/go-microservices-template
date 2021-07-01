@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	// TODO: Fix the GOPATH issue (put solution in usage of ship vscode workspace file)
 	"common/go/backoff"
 )
 
@@ -60,7 +59,7 @@ func Do(ctx context.Context, fn Function, opts *Opts) (retries int, err error) {
 	select {
 	case <-ctx.Done():
 		return retries, ctx.Err()
-	case err := <-errorChan:
+	case <-errorChan:
 		return retries, err
 	}
 }
