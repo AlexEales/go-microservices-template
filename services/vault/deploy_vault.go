@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"go-microservices-template/services/minikube"
 	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // TODO: Add in configurability for the configs etc. and add in retries to wait for pods etc. to be deployed
@@ -16,52 +16,6 @@ const (
 	consulValuesConfigPath = "services/vault/helm-consul-values.yaml"
 	vaultValuesConfigPath  = "services/vault/helm-vault-values.yaml"
 )
-
-var log = logrus.New()
-
-// TODO: Move these minikube utilities functions into a common/services library
-
-func getMinikubeStatus() (string, error) {
-	cmd := exec.Command("plz", "minikube", "status")
-	out, err := cmd.Output()
-	return string(out), err
-}
-
-func minikubeIsRunning() (bool, error) {
-	_, err := getMinikubeStatus()
-
-	if err == nil {
-		return true, nil
-	}
-
-	exitErr := &exec.ExitError{}
-	if !errors.As(err, &exitErr) || exitErr.ExitCode() != 85 {
-		return false, err
-	}
-
-	return false, nil
-}
-
-func startMinikubeIfNotRunning() error {
-	isRunning, err := minikubeIsRunning()
-	if err != nil {
-		return err
-	}
-
-	if !isRunning {
-		log.Info("Minikube not running, starting minikube")
-		cmd := exec.Command("plz", "minikube", "start")
-		cmd.Stdout = os.Stdout
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-		log.Info("Minikube started")
-	} else {
-		log.Info("Minikube already running")
-	}
-
-	return nil
-}
 
 // TODO: Move and commonise these helm utility functions into a common/service library
 
@@ -106,9 +60,12 @@ func installHelmChart(repo, chart string, args ...string) error {
 }
 
 func main() {
-	if err := startMinikubeIfNotRunning(); err != nil {
+	minikubeMonitor := minikube.NewMonitor()
+	if err := minikubeMonitor.Start(); err != nil {
 		log.WithError(err).Fatal("error checking or starting minikube")
 	}
+
+	// TODO: Need a check for if the charts have already been installed
 
 	if err := addHashicorpHelmRepo(); err != nil {
 		log.WithError(err).Fatal("error adding Hashicorp helm repository")
