@@ -41,7 +41,7 @@ This project is still WIP and so not all features will be present yet but the on
   - [ ] SQL Migration K8s Job/Init Container
 - [ ] Kafka Deployment
 - [ ] Hashicorp Vault Deployment
-- [ ] Prometheus, Kibana, OpenTracing and Grafana Observability Stack Deployments
+- [ ] Prometheus, Kibana, OpenTelemetry and Grafana Observability Stack Deployments
 - [ ] gRPC Gateway Buildrules
 - [ ] Example Services
   - [ ] HTTP
