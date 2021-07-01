@@ -13,7 +13,7 @@ default-docker-repo = go-microservices-template
 
 [go]
 gotool = //tools/go:toolchain|go
-; importpath = go-microservices-template
+importpath = go-microservices-template
 
 [alias "deploy"]
 cmd = run sequential --include docker-build --include k8s-push

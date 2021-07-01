@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"common/go/backoff"
+	"go-microservices-template/common/go/backoff"
 )
 
 func TestRetry(t *testing.T) {

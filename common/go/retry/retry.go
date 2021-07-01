@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"common/go/backoff"
+	"go-microservices-template/common/go/backoff"
 )
 
 type Function func() error
