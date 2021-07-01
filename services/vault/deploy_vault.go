@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"go-microservices-template/services/helm"
 	"go-microservices-template/services/minikube"
-	"os"
-	"os/exec"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -17,69 +14,30 @@ const (
 	vaultValuesConfigPath  = "services/vault/helm-vault-values.yaml"
 )
 
-// TODO: Move and commonise these helm utility functions into a common/service library
-
-func addHashicorpHelmRepo() error {
-	log.Info("Adding Hashicorp helm repository")
-	cmd := exec.Command("plz", "helm", "repo", "add", "hashicorp", "https://helm.releases.hashicorp.com")
-	cmd.Stdout = os.Stdout
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	log.Info("Hashicorp helm repository added successfully")
-	return nil
-}
-
-func updateHelmRepositories() error {
-	log.Info("Updating helm repositories")
-	cmd := exec.Command("plz", "helm", "repo", "update")
-	cmd.Stdout = os.Stdout
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	log.Info("Helm repositories updated")
-	return nil
-}
-
-func installHelmChart(repo, chart string, args ...string) error {
-	log.Infof("Installing %s %s helm chart", strings.Title(repo), strings.Title(chart))
-	cmdArgs := []string{
-		"helm",
-		"install",
-		chart,
-		fmt.Sprintf("%s/%s", repo, chart),
-	}
-	cmdArgs = append(cmdArgs, args...)
-	cmd := exec.Command("plz", cmdArgs...)
-	cmd.Stdout = os.Stdout
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	log.Infof("%s %s helm chart installed successfully", strings.Title(repo), strings.Title(chart))
-	return nil
-}
-
 func main() {
+	// TODO: Eventually this will be a common cluster monitor to deploy to any cluster not just minikube
 	minikubeMonitor := minikube.NewMonitor()
 	if err := minikubeMonitor.Start(); err != nil {
 		log.WithError(err).Fatal("error checking or starting minikube")
 	}
 
 	// TODO: Need a check for if the charts have already been installed
-
-	if err := addHashicorpHelmRepo(); err != nil {
+	helmClient := helm.NewClient()
+	if err := helmClient.AddRepository("hashicorp", "https://helm.releases.hashicorp.com"); err != nil {
 		log.WithError(err).Fatal("error adding Hashicorp helm repository")
 	}
 
-	if err := updateHelmRepositories(); err != nil {
+	if err := helmClient.UpdateRepositories(); err != nil {
 		log.WithError(err).Fatal("error updating Hashicorp helm repository")
 	}
 
-	if err := installHelmChart("hashicorp", "consul", "--values", consulValuesConfigPath); err != nil {
+	// TODO: Need k8s utils for checking if these charts have installed correctly with backoff
+
+	if err := helmClient.InstallChart("hashicorp", "consul", "--values", consulValuesConfigPath); err != nil {
 		log.WithError(err).Fatal("error installing Hashicorp Consul helm chart")
 	}
 
-	if err := installHelmChart("hashicorp", "vault", "--values", vaultValuesConfigPath); err != nil {
+	if err := helmClient.InstallChart("hashicorp", "vault", "--values", vaultValuesConfigPath); err != nil {
 		log.WithError(err).Fatal("error installing Hashicorp Consul helm chart")
 	}
 }
