@@ -4,6 +4,7 @@ go_binary(
     deps = [
         "//services/helm",
         "//services/minikube",
+        "//third_party/go:flags",
         "//third_party/go:logrus",
         "//tools/helm",
     ],
