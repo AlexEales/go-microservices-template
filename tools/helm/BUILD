@@ -5,4 +5,5 @@ remote_file(
     binary = True,
     extract = True,
     exported_files = ["linux-amd64/helm"],
+    visibility = ["PUBLIC"],
 )
