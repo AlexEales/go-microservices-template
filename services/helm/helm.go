@@ -33,6 +33,39 @@ func (c *Client) AddRepository(repository, url string) error {
 	return nil
 }
 
+// ChartInstalled checks if a specified chart has been installed already to prevent installing twice
+// and causing an error
+func (c *Client) ChartInstalled(chart string) (bool, error) {
+	cmd := exec.Command("plz", "helm", "list", "-q")
+	out, err := cmd.Output()
+	if err != nil {
+		return false, err
+	}
+
+	charts := strings.Split(string(out), "\n")
+	for _, existingChart := range charts {
+		if strings.EqualFold(chart, existingChart) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// ChartsInstalled checks if specified charts are installed already to prevent installing twice
+// and causing an error
+func (c *Client) ChartsInstalled(charts ...string) (bool, error) {
+	for _, chart := range charts {
+		installed, err := c.ChartInstalled(chart)
+		if err != nil {
+			return false, err
+		}
+		if !installed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
 // InstallChart installs a new helm chart on the current k8s context
 func (c *Client) InstallChart(repository, chart string, args ...string) error {
 	log.Infof("Installing %s %s helm chart", strings.Title(repository), strings.Title(chart))

@@ -21,8 +21,14 @@ func main() {
 		log.WithError(err).Fatal("error checking or starting minikube")
 	}
 
-	// TODO: Need a check for if the charts have already been installed
 	helmClient := helm.NewClient()
+	if installed, err := helmClient.ChartsInstalled("consul", "vault"); err != nil {
+		log.WithError(err).Fatal("error determining if helm charts are already installed")
+	} else if installed {
+		log.Info("Helm charts already installed, removed consul and vault helm charts and re-run")
+		return
+	}
+
 	if err := helmClient.AddRepository("hashicorp", "https://helm.releases.hashicorp.com"); err != nil {
 		log.WithError(err).Fatal("error adding Hashicorp helm repository")
 	}
