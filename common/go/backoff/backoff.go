@@ -62,8 +62,12 @@ func (e *Exponential) Backoff(retries int) time.Duration {
 
 	backoff = math.Max(
 		0,
-		backoff*(1+e.Jitter*(rand.Float64()*2-1)),
+		backoff*calculateJitter(e.Jitter),
 	)
 
 	return time.Duration(backoff)
+}
+
+func calculateJitter(baseJitter float64) float64 {
+	return 1 + baseJitter*(rand.Float64()*2-1)
 }

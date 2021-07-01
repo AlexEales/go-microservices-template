@@ -551,6 +551,7 @@ go_module(
 go_module(
     name = "testify",
     module = "github.com/stretchr/testify",
+    install = ["..."],
     version = "v1.7.0",
     deps = [
         ":difflib",
