@@ -2,6 +2,7 @@ package retry
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go-microservices-template/common/go/backoff"
@@ -46,7 +47,9 @@ func Do(ctx context.Context, fn Function, opts *Opts) (retries int, err error) {
 				if retries == opts.MaxAttempts-1 {
 					break
 				}
-				time.Sleep(opts.Backoff.Backoff(retries))
+				boTime := opts.Backoff.Backoff(retries)
+				log.Printf("Retrying, attempt %d/%d waiting %fs before retrying", retries+1, opts.MaxAttempts, boTime.Seconds())
+				time.Sleep(boTime)
 				retries++
 			} else {
 				errorChan <- err
