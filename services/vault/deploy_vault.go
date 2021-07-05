@@ -2,21 +2,21 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"os/exec"
+	"time"
+
+	flags "github.com/jessevdk/go-flags"
+	log "github.com/sirupsen/logrus"
+
 	"go-microservices-template/common/go/backoff"
 	"go-microservices-template/common/go/retry"
 	"go-microservices-template/services/helm"
 	"go-microservices-template/services/k8s"
 	"go-microservices-template/services/minikube"
-	"time"
-
-	flags "github.com/jessevdk/go-flags"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
-	errPodNotRunning = fmt.Errorf("pod not running")
-
 	k8sBackoffOpts = &backoff.Exponential{
 		InitialDelay: 4 * time.Second,
 		BaseDelay:    4 * time.Second,
@@ -27,8 +27,17 @@ var (
 	k8sRetryOpts = &retry.Opts{
 		MaxAttempts: 5,
 		Backoff:     k8sBackoffOpts,
-		IsRetryable: func(e error) bool {
-			return e == errPodNotRunning
+		IsRetryable: func(err error) bool {
+			if err == nil {
+				return false
+			}
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
+				if exitErr.ExitCode() == 1 {
+					return true
+				}
+			}
+			return false
 		},
 	}
 
@@ -39,10 +48,6 @@ var (
 var opts struct {
 	ConsulConfigPath string `long:"consul-config-path" default:"services/vault/config/helm-consul-values.yaml" env:"CONSUL_CONFIG_PATH"`
 	VaultConfigPath  string `long:"vault-config-path" default:"services/vault/config/helm-vault-values.yaml" env:"VAULT_CONFIG_PATH"`
-}
-
-func podRunningRetryFn(selector string) func() error {
-	return func() error { return nil }
 }
 
 func main() {
@@ -85,14 +90,7 @@ func main() {
 
 	k8sClient := k8s.NewClient()
 	checkConsulRunning := func() error {
-		isRunning, err := k8sClient.PodsAreRunning(consulK8sSelector)
-		if err != nil {
-			return err
-		}
-		if isRunning {
-			return nil
-		}
-		return errPodNotRunning
+		return k8sClient.WaitForResourceToBeReady(consulK8sSelector, "10s")
 	}
 	if _, err := retry.Do(context.Background(), checkConsulRunning, k8sRetryOpts); err != nil {
 		log.WithError(err).Fatal("error occured waiting for consul to be deployed")
@@ -103,14 +101,7 @@ func main() {
 	}
 
 	checkVaultRunning := func() error {
-		isRunning, err := k8sClient.PodsAreRunning(vaultK8sSelector)
-		if err != nil {
-			return err
-		}
-		if isRunning {
-			return nil
-		}
-		return errPodNotRunning
+		return k8sClient.WaitForCondition(vaultK8sSelector, "ready", "10s")
 	}
 	if _, err := retry.Do(context.Background(), checkVaultRunning, k8sRetryOpts); err != nil {
 		log.WithError(err).Fatal("error occured waiting for vault to be deployed")
