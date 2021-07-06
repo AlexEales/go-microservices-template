@@ -16,6 +16,11 @@ import (
 	"go-microservices-template/services/minikube"
 )
 
+const (
+	consulK8sSelector             = "app=consul"
+	vaultAgentInjectorK8sSelector = "app.kubernetes.io/name=vault-agent-injector"
+)
+
 var (
 	k8sBackoffOpts = &backoff.Exponential{
 		InitialDelay: 4 * time.Second,
@@ -40,9 +45,6 @@ var (
 			return false
 		},
 	}
-
-	consulK8sSelector = "app=consul"
-	vaultK8sSelector  = "app.kubernetes.io/name=vault"
 )
 
 var opts struct {
@@ -70,7 +72,7 @@ func main() {
 		log.WithError(err).Fatal("error determining if helm charts are already installed")
 	} else if installed {
 		// TODO: not sure if this is entirely what we would want to do as we might want to check the pods have been initialised etc.
-		log.Info("Helm charts already installed, removed consul and vault helm charts and re-run")
+		log.Info("Helm charts already installed, re-run on fresh minikube instance")
 		return
 	}
 
@@ -82,15 +84,13 @@ func main() {
 		log.WithError(err).Fatal("error updating Hashicorp helm repository")
 	}
 
-	// TODO: Need k8s utils for checking if these charts have installed correctly with backoff
-
 	if err := helmClient.InstallChart("hashicorp", "consul", "--values", opts.ConsulConfigPath); err != nil {
 		log.WithError(err).Fatal("error installing Hashicorp Consul helm chart")
 	}
 
 	k8sClient := k8s.NewClient()
 	checkConsulRunning := func() error {
-		return k8sClient.WaitForResourceToBeReady(consulK8sSelector, "10s")
+		return k8sClient.WaitForPodToBeReady(consulK8sSelector, "15s")
 	}
 	if _, err := retry.Do(context.Background(), checkConsulRunning, k8sRetryOpts); err != nil {
 		log.WithError(err).Fatal("error occured waiting for consul to be deployed")
@@ -100,10 +100,10 @@ func main() {
 		log.WithError(err).Fatal("error installing Hashicorp Consul helm chart")
 	}
 
-	checkVaultRunning := func() error {
-		return k8sClient.WaitForCondition(vaultK8sSelector, "ready", "10s")
+	checkVaultAgentInjectorRunning := func() error {
+		return k8sClient.WaitForPodToBeReady(vaultAgentInjectorK8sSelector, "15s")
 	}
-	if _, err := retry.Do(context.Background(), checkVaultRunning, k8sRetryOpts); err != nil {
-		log.WithError(err).Fatal("error occured waiting for vault to be deployed")
+	if _, err := retry.Do(context.Background(), checkVaultAgentInjectorRunning, k8sRetryOpts); err != nil {
+		log.WithError(err).Fatal("error occured waiting for the vault agent injector to be deployed")
 	}
 }

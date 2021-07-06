@@ -2,7 +2,6 @@ package k8s
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 )
 
@@ -12,7 +11,7 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-func (c *Client) WaitForResourceToBeReady(selector, timeout string) error {
+func (c *Client) WaitForPodToBeReady(selector, timeout string) error {
 	cmd := exec.Command(
 		"kubectl",
 		"wait",
@@ -22,7 +21,7 @@ func (c *Client) WaitForResourceToBeReady(selector, timeout string) error {
 		"-l",
 		selector,
 	)
-	if _, err := cmd.Output(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 	return nil
@@ -36,8 +35,7 @@ func (c *Client) WaitForCondition(selector, condition, timeoutStr string) error 
 		fmt.Sprintf("--timeout=%s", timeoutStr),
 		selector,
 	)
-	if out, err := cmd.Output(); err != nil {
-		log.Printf(string(out))
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 	return nil

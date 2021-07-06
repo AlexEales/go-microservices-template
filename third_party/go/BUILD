@@ -224,27 +224,6 @@ go_module(
 )
 
 go_module(
-    name = "go-k8s",
-    module = "k8s.io/client-go",
-    install = [
-        "discovery",
-        "kubernetes",
-        "rest",
-        "utils",
-    ],
-    version = "v0.21.2",
-    deps = [
-        ":k8s-api",
-    ],
-)
-
-go_module(
-    name = "go-logr",
-    module = "github.com/go-logr/logr",
-    version = "v0.4.0",
-)
-
-go_module(
     name = "go-units",
     module = "github.com/docker/go-units",
     version = "v0.4.0",
@@ -319,50 +298,6 @@ go_module(
     name = "gotty",
     module = "github.com/Nvveen/Gotty",
     version = "v0.0.0-20170406111628-a8b993ba6abd",
-)
-
-go_module(
-    name = "inf",
-    module = "gopkg.in/inf.v0",
-    version = "v0.9.1",
-)
-
-go_module(
-    name = "k8s-api",
-    module = "k8s.io/api",
-    install = [
-        "admissionregistration/v1"
-    ],
-    version = "v0.21.2",
-    deps = [
-        ":gogo-protobuf",
-        ":k8s-apimachinery",
-    ],
-)
-
-go_module(
-    name = "k8s-apimachinery",
-    module = "k8s.io/apimachinery",
-    install = [
-        "pkg/apis/meta/v1",
-    ],
-    version = "v0.21.2",
-    deps = [
-        ":go-cmp",
-        ":gogo-protobuf",
-        ":inf",
-        ":klog",
-        ":structured-merge-diff",
-    ],
-)
-
-go_module(
-    name = "klog",
-    module = "k8s.io/klog/v2",
-    version = "v2.9.0",
-    deps = [
-        ":go-logr",
-    ],
 )
 
 go_module(
@@ -611,16 +546,6 @@ go_module(
     name = "sortorder",
     module = "github.com/fvbommel/sortorder",
     version = "v1.0.2",
-)
-
-go_module(
-    name = "structured-merge-diff",
-    module = "sigs.k8s.io/structured-merge-diff/v4",
-    install = ["value"],
-    version = "v4.1.2",
-    deps = [
-        ":yamlv2",
-    ],
 )
 
 go_module(

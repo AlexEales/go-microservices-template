@@ -81,7 +81,7 @@ func (c *Client) InstallChart(repository, chart string, args ...string) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
-	log.Infof("%s %s helm chart installed successfully", strings.Title(repository), strings.Title(chart))
+	log.Infof("%s %s helm chart installed", strings.Title(repository), strings.Title(chart))
 	return nil
 }
 
