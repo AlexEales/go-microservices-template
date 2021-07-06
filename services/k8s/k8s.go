@@ -11,6 +11,8 @@ func NewClient() *Client {
 	return &Client{}
 }
 
+// WaitForPodToBeReady takes a selector and a timeout string and polls the k8s cluster
+// to see if the pod(s) under the specified selector are "Ready"
 func (c *Client) WaitForPodToBeReady(selector, timeout string) error {
 	cmd := exec.Command(
 		"kubectl",
@@ -27,6 +29,19 @@ func (c *Client) WaitForPodToBeReady(selector, timeout string) error {
 	return nil
 }
 
+// Exec performs the k8s `exec` command on the specified resource and returns
+// the output of the command on success and error on fail
 func (c *Client) Exec(resource, command string) (string, error) {
-	return "", nil
+	cmd := exec.Command(
+		"kubectl",
+		"exec",
+		resource,
+		"--",
+		command,
+	)
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }

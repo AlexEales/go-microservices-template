@@ -119,4 +119,11 @@ func main() {
 	k8sClient := k8s.NewClient()
 	waitForConsulToInstall(helmClient, k8sClient)
 	waitForVaultToInstall(helmClient, k8sClient)
+
+	// TODO: Write k8s client method for getting all pod names for a selector so we can loop over them here
+	initOutput, err := k8sClient.Exec("vault-0", "vault operator init -key-shares=1 -key-threshold=1 -format=json")
+	if err != nil {
+		log.WithError(err).Fatal("error initialising vault-0")
+	}
+	log.Infof("vault-0 initialised:\n%s", initOutput)
 }
