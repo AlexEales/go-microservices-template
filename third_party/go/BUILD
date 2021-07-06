@@ -347,6 +347,8 @@ go_module(
     module = "github.com/googleapis/gnostic",
     install = [
         "compiler",
+        "extensions",
+        "jsonschema",
         "openapiv2",
     ],
     version = "v0.5.5",
@@ -360,6 +362,7 @@ go_module(
 go_module(
     name = "gofuzz",
     module = "github.com/google/gofuzz",
+    install = ["..."],
     version = "v1.2.0",
 )
 
@@ -788,8 +791,9 @@ go_module(
         "proto",
         "ptypes",
         "ptypes/any",
+        "ptypes/duration",
+        "ptypes/empty",
         "ptypes/timestamp",
-        "ptypes/empty"
     ],
     version = "v1.5.2",
     deps = [
@@ -918,6 +922,7 @@ go_module(
     install = [
         ".",
         "google",
+        "internal",
     ],
     version = "v0.0.0-20200107190931-bf48bf16ab8d",
     deps = [
