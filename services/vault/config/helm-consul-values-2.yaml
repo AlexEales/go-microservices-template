@@ -1,9 +1,0 @@
-global:
-  datacenter: go-microservices-template
-client:
-  enabled: true
-server:
-  replicas: 2
-  bootstrapExpect: 1
-  disruptionBudget:
-    maxUnavailable: 0

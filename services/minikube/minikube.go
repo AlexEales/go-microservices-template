@@ -11,7 +11,7 @@ import (
 var (
 	deleteCmd    = exec.Command("plz", "minikube", "delete")
 	getStatusCmd = exec.Command("plz", "minikube", "status")
-	startCmd     = exec.Command("plz", "minikube", "start")
+	startCmd     = exec.Command("plz", "minikube", "start", "--addons", "registry", "metrics-server", "dashboard")
 	stopCmd      = exec.Command("plz", "minikube", "stop")
 )
 

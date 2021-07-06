@@ -27,20 +27,6 @@ func (c *Client) WaitForPodToBeReady(selector, timeout string) error {
 	return nil
 }
 
-func (c *Client) WaitForCondition(selector, condition, timeoutStr string) error {
-	cmd := exec.Command(
-		"kubectl",
-		"wait",
-		fmt.Sprintf("--for=condition=%s", condition),
-		fmt.Sprintf("--timeout=%s", timeoutStr),
-		selector,
-	)
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (c *Client) Exec(resource, command string) (string, error) {
 	return "", nil
 }
