@@ -87,16 +87,20 @@ func waitForConsulToInstall(helmClient *helm.Client, k8sClient *k8s.Client) {
 
 func waitForVaultToInstall(helmClient *helm.Client, k8sClient *k8s.Client) {
 	if err := helmClient.InstallChart("hashicorp", "vault", "--values", opts.VaultConfigPath); err != nil {
-		log.WithError(err).Fatal("error installing Hashicorp Consul helm chart")
+		log.WithError(err).Fatal("error installing Hashicorp Vault helm chart")
 	}
 
-	log.Info("Waiting Vault Agent Injector pod to be ready")
+	log.Info("Waiting Vault pods to be ready")
 	checkVaultAgentInjectorRunning := func() error {
 		return k8sClient.WaitForPodToBeReady(vaultAgentInjectorK8sSelector, "15s")
 	}
 	if _, err := retry.Do(context.Background(), checkVaultAgentInjectorRunning, k8sRetryOpts); err != nil {
-		log.WithError(err).Fatal("error occured waiting for the vault agent injector to be deployed")
+		log.WithError(err).Fatal("error occured waiting for the vault pods to be deployed")
 	}
+
+	// Further wait for the vault pods themselves to be running (should be no more than 45s)
+	log.Info("Waiting (45s) for vault pods to be ready")
+	time.Sleep(45 * time.Second)
 }
 
 func main() {

@@ -3,6 +3,7 @@ package k8s
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type Client struct{}
@@ -31,13 +32,17 @@ func (c *Client) WaitForPodToBeReady(selector, timeout string) error {
 
 // Exec performs the k8s `exec` command on the specified resource and returns
 // the output of the command on success and error on fail
+// Note: the command string will be split on spaces ' ' for use in exec.Command
 func (c *Client) Exec(resource, command string) (string, error) {
-	cmd := exec.Command(
-		"kubectl",
+	args := []string{
 		"exec",
 		resource,
 		"--",
-		command,
+	}
+	args = append(args, strings.Split(command, " ")...)
+	cmd := exec.Command(
+		"kubectl",
+		args...,
 	)
 	out, err := cmd.Output()
 	if err != nil {
