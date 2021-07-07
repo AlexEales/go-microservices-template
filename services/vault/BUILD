@@ -8,6 +8,7 @@ go_binary(
         "//services/k8s",
         "//services/minikube",
         "//third_party/go:flags",
+        "//third_party/go:k8s-api",
         "//third_party/go:logrus",
         "//tools/helm",
     ],

@@ -8,6 +8,7 @@ import (
 
 	flags "github.com/jessevdk/go-flags"
 	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
 
 	"go-microservices-template/common/go/backoff"
 	"go-microservices-template/common/go/retry"
@@ -22,6 +23,8 @@ const (
 )
 
 var (
+	errStatusNotExpected = errors.New("pod(s) did not have expected status")
+
 	k8sBackoffOpts = &backoff.Exponential{
 		InitialDelay: 4 * time.Second,
 		BaseDelay:    4 * time.Second,
@@ -36,6 +39,11 @@ var (
 			if err == nil {
 				return false
 			}
+
+			if err == errStatusNotExpected {
+				return true
+			}
+
 			var exitErr *exec.ExitError
 			if errors.As(err, &exitErr) {
 				if exitErr.ExitCode() == 1 {
@@ -78,7 +86,17 @@ func waitForConsulToInstall(helmClient *helm.Client, k8sClient *k8s.Client) {
 
 	log.Info("Waiting Consul pods to be ready")
 	checkConsulRunning := func() error {
-		return k8sClient.WaitForPodToBeReady(consulK8sSelector, "15s")
+		// return k8sClient.WaitForPodToBeReady(consulK8sSelector, "15s")
+		haveStatus, err := k8sClient.PodsHaveStatus(context.TODO(), consulK8sSelector, v1.PodRunning)
+		if err != nil {
+			return err
+		}
+
+		if !haveStatus {
+			return errStatusNotExpected
+		}
+
+		return nil
 	}
 	if _, err := retry.Do(context.Background(), checkConsulRunning, k8sRetryOpts); err != nil {
 		log.WithError(err).Fatal("error occured waiting for consul to be deployed")
@@ -92,7 +110,17 @@ func waitForVaultToInstall(helmClient *helm.Client, k8sClient *k8s.Client) {
 
 	log.Info("Waiting Vault pods to be ready")
 	checkVaultAgentInjectorRunning := func() error {
-		return k8sClient.WaitForPodToBeReady(vaultAgentInjectorK8sSelector, "15s")
+		// return k8sClient.WaitForPodToBeReady(vaultAgentInjectorK8sSelector, "15s")
+		haveStatus, err := k8sClient.PodsHaveStatus(context.TODO(), "app.kubernetes.io/name=vault", v1.PodRunning)
+		if err != nil {
+			return err
+		}
+
+		if !haveStatus {
+			return errStatusNotExpected
+		}
+
+		return nil
 	}
 	if _, err := retry.Do(context.Background(), checkVaultAgentInjectorRunning, k8sRetryOpts); err != nil {
 		log.WithError(err).Fatal("error occured waiting for the vault pods to be deployed")
@@ -120,7 +148,7 @@ func main() {
 	helmClient := helm.NewClient()
 	initialiseHelm(helmClient)
 
-	k8sClient := k8s.NewClient()
+	k8sClient := k8s.MustNewClient()
 	waitForConsulToInstall(helmClient, k8sClient)
 	waitForVaultToInstall(helmClient, k8sClient)
 
