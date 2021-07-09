@@ -7,9 +7,59 @@ go_module(
 )
 
 go_module(
+    name = "azure-autorest",
+    module = "github.com/Azure/go-autorest/autorest",
+    install = [
+        ".",
+        "azure",
+    ],
+    version = "v0.11.19",
+    deps = [
+        ":azure-autorest-adal",
+    ],
+)
+
+go_module(
+    name = "azure-autorest-adal",
+    module = "github.com/Azure/go-autorest/autorest/adal",
+    version = "v0.9.14",
+    deps = [
+        ":azure-autorest-date",
+        ":azure-autorest-logger",
+        ":azure-autorest-tracing",
+        ":go-jwt",
+        ":xcrypto",
+    ],
+)
+
+go_module(
+    name = "azure-autorest-date",
+    module = "github.com/Azure/go-autorest/autorest/date",
+    version = "v0.3.0",
+)
+
+go_module(
+    name = "azure-autorest-logger",
+    module = "github.com/Azure/go-autorest/logger",
+    version = "v0.2.1",
+)
+
+go_module(
+    name = "azure-autorest-tracing",
+    module = "github.com/Azure/go-autorest/tracing",
+    version = "v0.6.0",
+)
+
+go_module(
     name = "backoff",
     module = "github.com/cenkalti/backoff/v4",
     version = "v4.1.1",
+)
+
+go_module(
+    name = "btree",
+    module = "github.com/google/btree",
+    version = "v1.0.1",
 )
 
 go_module(
@@ -49,6 +99,15 @@ go_module(
     module = "github.com/pmezard/go-difflib",
     install = ["difflib"],
     version = "v1.0.0",
+)
+
+go_module(
+    name = "diskv",
+    module = "github.com/peterbourgon/diskv",
+    version = "v2.0.1",
+    deps = [
+        ":btree",
+    ],
 )
 
 go_module(
@@ -196,6 +255,20 @@ go_module(
 )
 
 go_module(
+    name = "flowrate",
+    module = "github.com/mxk/go-flowrate",
+    install = ["flowrate"],
+    version = "v0.0.0-20140419014527-cca7078d478f",
+)
+
+go_module(
+    name = "gcp",
+    module = "cloud.google.com/go",
+    install = ["compute/metadata"],
+    version = "v0.86.0",
+)
+
+go_module(
     name = "go-cmp",
     module = "github.com/google/go-cmp",
     install = ["cmp/..."],
@@ -224,15 +297,82 @@ go_module(
 )
 
 go_module(
+    name = "go-jwt",
+    module = "github.com/form3tech-oss/jwt-go",
+    version = "v3.2.3",
+)
+
+go_module(
+    name = "go-k8s",
+    module = "k8s.io/client-go",
+    install = ["..."],
+    version = "v0.21.2",
+    deps = [
+        ":azure-autorest",
+        ":httpcache",
+        ":groupcache",
+        ":k8s-api",
+        ":k8s-apimachinery",
+        ":k8s-utils",
+        ":mergo",
+        ":testify",
+        ":uuid",
+        ":xcrypto",
+        ":xoauth2",
+        ":xterm",
+        ":xtime",
+    ],
+)
+
+go_module(
+    name = "go-logr",
+    module = "github.com/go-logr/logr",
+    version = "v0.4.0",
+)
+
+go_module(
+    name = "go-lru",
+    module = "github.com/hashicorp/golang-lru",
+    version = "v0.5.4",
+)
+
+go_module(
     name = "go-units",
     module = "github.com/docker/go-units",
     version = "v0.4.0",
 )
 
 go_module(
+    name = "gnostic",
+    module = "github.com/googleapis/gnostic",
+    install = [
+        "compiler",
+        "extensions",
+        "jsonschema",
+        "openapiv2",
+    ],
+    version = "v0.5.5",
+    deps = [
+        ":google-protobuf",
+        ":protobuf",
+        ":yamlv3",
+    ],
+)
+
+go_module(
+    name = "gofuzz",
+    module = "github.com/google/gofuzz",
+    install = ["..."],
+    version = "v1.2.0",
+)
+
+go_module(
     name = "gogo-protobuf",
     module = "github.com/gogo/protobuf",
-    install = ["proto"],
+    install = [
+        "proto",
+        "sortkeys",
+    ],
     version = "v1.3.2",
 )
 
@@ -260,6 +400,7 @@ go_module(
     ],
 )
 
+
 go_module(
     name = "google-protobuf",
     module = "google.golang.org/protobuf",
@@ -268,6 +409,19 @@ go_module(
     deps = [
         ":go-cmp",
     ],
+)
+
+go_module(
+    name = "google-uuid",
+    module = "github.com/google/uuid",
+    version = "v1.2.0",
+)
+
+go_module(
+    name = "groupcache",
+    module = "github.com/golang/groupcache",
+    install = ["lru"],
+    version = "v0.0.0-20210331224755-41bb18bfe9da",
 )
 
 go_module(
@@ -301,12 +455,132 @@ go_module(
 )
 
 go_module(
+    name = "httpcache",
+    module = "github.com/gregjones/httpcache",
+    install = [
+        ".",
+        "diskcache",
+    ],
+    version = "v0.0.0-20190611155906-901d90724c79",
+    deps = [
+        ":diskv",
+    ],
+)
+
+go_module(
+    name = "inf",
+    module = "gopkg.in/inf.v0",
+    version = "v0.9.1",
+)
+
+go_module(
     name = "image-spec",
     module = "github.com/opencontainers/image-spec",
     install = ["specs-go/v1"],
     version = "v1.0.1",
     deps = [
         ":go-digest",
+    ],
+)
+
+go_module(
+    name = "json-iterator",
+    module = "github.com/json-iterator/go",
+    version = "v1.1.11",
+    deps = [
+        ":modern-go-reflect",
+        ":modern-go-concurrent",
+    ],
+)
+
+go_module(
+    name = "json-patch",
+    module = "github.com/evanphx/json-patch",
+    version = "v0.5.2",
+    deps = [
+        ":pkg-errors",
+    ],
+)
+
+go_module(
+    name = "k8s-api",
+    module = "k8s.io/api",
+    install = ["..."],
+    version = "v0.21.2",
+    deps = [
+        ":gogo-protobuf",
+        ":k8s-apimachinery",
+        ":yamlv2",
+    ],
+)
+
+go_module(
+    name = "k8s-apimachinery",
+    module = "k8s.io/apimachinery",
+    install = ["..."],
+    strip = [
+        "pkg/util/strategicpatch/testing", # Stripped due to dependency issue
+    ],
+    version = "v0.21.2",
+    deps = [
+        ":flowrate",
+        ":go-cmp",
+        ":go-lru",
+        ":gofuzz",
+        ":gogo-protobuf",
+        ":google-uuid",
+        ":gnostic",
+        ":inf",
+        ":json-patch",
+        ":k8s-openapi",
+        ":k8s-yaml",
+        ":klog",
+        ":moby-spdystream",
+        ":pflag",
+        ":protobuf",
+        ":spew",
+        ":structured-merge-diff",
+        ":xnet",
+    ],
+)
+
+go_module(
+    name = "k8s-openapi",
+    module = "k8s.io/kube-openapi",
+    install = ["pkg/util/proto"],
+    version = "v0.0.0-20210527164424-3c818078ee3d",
+    deps = [
+        ":gnostic",
+        ":yamlv2",
+    ],
+)
+
+go_module(
+    name = "k8s-utils",
+    module = "k8s.io/utils",
+    install = ["..."],
+    version = "v0.0.0-20201110183641-67b214c5f920",
+    deps = [
+        ":klog",
+        ":spew",
+    ],
+)
+
+go_module(
+    name = "k8s-yaml",
+    module = "sigs.k8s.io/yaml",
+    version = "v1.2.0",
+    deps = [
+        ":yamlv2",
+    ],
+)
+
+go_module(
+    name = "klog",
+    module = "k8s.io/klog/v2",
+    version = "v2.8.0",
+    deps = [
+        ":go-logr",
     ],
 )
 
@@ -357,6 +631,12 @@ go_module(
 )
 
 go_module(
+    name = "moby-spdystream",
+    module = "github.com/moby/spdystream",
+    version = "v0.2.0",
+)
+
+go_module(
     name = "moby-term",
     module = "github.com/moby/term",
     version = "v0.0.0-20201216013528-df9cb8a40635",
@@ -372,6 +652,21 @@ go_module(
     deps = [
         ":moby-mountinfo",
         ":xsys",
+    ],
+)
+
+go_module(
+    name = "modern-go-concurrent",
+    module = "github.com/modern-go/concurrent",
+    version = "v0.0.0-20180306012644-bacd9c7ef1dd",
+)
+
+go_module(
+    name = "modern-go-reflect",
+    module = "github.com/modern-go/reflect2",
+    version = "v1.0.1",
+    deps = [
+        ":modern-go-concurrent",
     ],
 )
 
@@ -495,8 +790,10 @@ go_module(
     install = [
         "proto",
         "ptypes",
+        "ptypes/any",
+        "ptypes/duration",
+        "ptypes/empty",
         "ptypes/timestamp",
-        "ptypes/empty"
     ],
     version = "v1.5.2",
     deps = [
@@ -530,6 +827,12 @@ go_module(
 )
 
 go_module(
+    name = "sortorder",
+    module = "github.com/fvbommel/sortorder",
+    version = "v1.0.2",
+)
+
+go_module(
     name = "spew",
     module = "github.com/davecgh/go-spew",
     install = ["spew"],
@@ -543,9 +846,14 @@ go_module(
 )
 
 go_module(
-    name = "sortorder",
-    module = "github.com/fvbommel/sortorder",
-    version = "v1.0.2",
+    name = "structured-merge-diff",
+    module = "sigs.k8s.io/structured-merge-diff/v4",
+    install = ["..."],
+    version = "v4.1.0",
+    deps = [
+        ":json-iterator",
+        ":yamlv2",
+    ],
 )
 
 go_module(
@@ -573,6 +881,7 @@ go_module(
     install = [
         "ed25519",
         "pbkdf2",
+        "pkcs12",
         "ssh/terminal",
     ],
     version = "v0.0.0-20200622213623-75b288015ac9",
@@ -599,10 +908,26 @@ go_module(
     name = "xnet",
     module = "golang.org/x/net",
     install = ["..."],
-    version = "v0.0.0-20201021035429-f5854403a974",
+    version = "v0.0.0-20210614182718-04defd469f4e",
     deps = [
         ":xcrypto",
+        ":xterm",
         ":xtext",
+    ],
+)
+
+go_module(
+    name = "xoauth2",
+    module = "golang.org/x/oauth2",
+    install = [
+        ".",
+        "google",
+        "internal",
+    ],
+    version = "v0.0.0-20200107190931-bf48bf16ab8d",
+    deps = [
+        ":gcp",
+        ":xnet",
     ],
 )
 
