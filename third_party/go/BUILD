@@ -435,6 +435,7 @@ go_module(
 go_module(
     name = "pq",
     module = "github.com/lib/pq",
+    install = ["..."],
     version = "v1.10.2",
 )
 
@@ -539,6 +540,7 @@ go_module(
 go_module(
     name = "sqlx",
     module = "github.com/jmoiron/sqlx",
+    install = ["..."],
     version = "v1.3.4",
 )
 
