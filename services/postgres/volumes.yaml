@@ -8,6 +8,7 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
+    # TODO: Change to required amount of storage
     storage: 5Gi
   accessModes:
     - ReadWriteMany
@@ -26,4 +27,5 @@ spec:
     - ReadWriteMany
   resources:
     requests:
+      # TODO: Change to required amount of storage
       storage: 5Gi
