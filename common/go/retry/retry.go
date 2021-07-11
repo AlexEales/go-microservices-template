@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"go-microservices-template/common/go/backoff"
 )
 
@@ -46,7 +48,15 @@ func Do(ctx context.Context, fn Function, opts *Opts) (retries int, err error) {
 				if retries == opts.MaxAttempts-1 {
 					break
 				}
-				time.Sleep(opts.Backoff.Backoff(retries))
+
+				backoffTime := opts.Backoff.Backoff(retries)
+				log.WithError(err).Warningf(
+					"Attempt %d/%d failed, retrying in %.2f seconds",
+					retries+1,
+					opts.MaxAttempts,
+					backoffTime.Seconds(),
+				)
+				time.Sleep(backoffTime)
 				retries++
 			} else {
 				errorChan <- err
